@@ -1,0 +1,8 @@
+*.swp
+.netrwhist
+
+.DS_Store
+
+sessions/
+tmp/
+plugged/
