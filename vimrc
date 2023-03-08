@@ -57,10 +57,7 @@ set wildmode=full
 " === Style ==={{{
 set listchars=tab:▸\ ,trail:▫
 let &t_ut=''
-" Better cursor
-let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-let &t_SR = "\<Esc>]50;CursorShape=2\x7"
-let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+
 set t_Co=256
 set background=dark
 let g:solarized_termcolors=256
@@ -100,31 +97,7 @@ nnoremap <c-j> <esc>viw~e
 nnoremap <c-l> :nohlsearch<CR><C-L>
 " }}}
 
-" ===== Operator-Pending Mappings ===== {{{
-onoremap inp :<c-u>normal! f(vi(<cr>
-onoremap ipp :<c-u>normal! F)vi(<cr>
-onoremap anp :<c-u>normal! f(va(<cr>
-onoremap app :<c-u>normal! F)va(<cr>
-onoremap in" :<c-u>normal! f"vi"<cr>
-onoremap ip" :<c-u>normal! F"vi"<cr>
-onoremap in' :<c-u>normal! f'vi'<cr>
-onoremap ip' :<c-u>normal! F'vi'<cr>
-" }}}
-
 let g:mapleader=" "
-let g:maplocalleader="\\"
-
-" nnoremap <leader>gg :silent execute "grep! -R " . shellescape(expand("<cWORD>")) . " ."<cr>:copen<cr>
-nnoremap <leader>gc :cclose<cr>
-
-nnoremap <leader>ve :vsplit $MYVIMRC<cr>
-nnoremap <leader>vs :source $MYVIMRC<cr>
-nnoremap <leader>; :execute "normal! mqA;\e`q"<cr>
-
-nnoremap <leader>w :match Error /\v.*\ \_$/<cr>
-nnoremap <leader>W :match<cr>
-
-cnoreabbrev H vert h
 
 " ===== Window Management ===== {{{
 map <leader>u <C-w>k
@@ -165,55 +138,12 @@ map tmn :-tabmove<CR>
 map tmi :+tabmove<CR>
 " }}}
 
-map <LEADER>t :terminal<CR>
-tnoremap <Esc> <C-\><C-n>
-
-" ===== Word Surround ===== {{{
-nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
-nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
-nnoremap <leader>` viw<esc>a`<esc>bi`<esc>lel
-nnoremap <leader>b viw<esc>a)<esc>bi(<esc>lel
-nnoremap <leader>B viw<esc>a}<esc>bi{<esc>lel
-vnoremap <leader>" <esc>a"<esc>`<i"<esc>`>2l
-vnoremap <leader>' <esc>a'<esc>`<i'<esc>`>2l
-vnoremap <leader>` <esc>a`<esc>`<i`<esc>`>2l
-vnoremap <leader>b <esc>a)<esc>`<i(<esc>`>2l
-vnoremap <leader>B <esc>a}<esc>`<i{<esc>`>2l
-" }}}
-
-iabbrev ccopy Copyright 2022 Eyebrows White, all rights reserved.
-
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
-" ===== FileType Autocommand ===== {{{
 augroup newfile
   autocmd!
   autocmd BufNewFile,BufRead *.log setlocal nowrap
 augroup END
-" === Vimscript Setting === {{{
-augroup filetype_vim
-  autocmd!
-  autocmd FileType vim setlocal foldmethod=marker
-  autocmd FileType vim setlocal foldlevelstart=1
-  autocmd FileType vim setlocal foldlevel=1
-augroup END
-" }}}
-augroup filetype_js
-  autocmd!
-  autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
-  autocmd FileType javascript :iabbrev <buffer> iff if ()<left>
-augroup END
-augroup filetype_py
-  autocmd!
-  autocmd FileType python nnoremap <buffer> <localleader>c I#<esc>
-  autocmd FileType python :iabbrev <buffer> iff if:<left>
-augroup END
-augroup filetype_md
-  autocmd!
-  autocmd FileType markdown onoremap ih :<c-u>execute "normal! ?^#\\{1}\\s.*$\r:nohlsearch\r2lvg_"<cr>
-  autocmd FileType markdown onoremap ihh :<c-u>execute "normal! ?^#\\{2}\\s.*$\r:nohlsearch\r3lvg_"<cr>
-augroup END
-" }}}
 
 " ===== Plugins ===== {{{
 " install plugins by vim-plug
