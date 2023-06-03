@@ -47,7 +47,7 @@ set smartcase
 " === Statusline === {{{
 set laststatus=2
 set statusline=%f\ %m%r\ %y\ -\ %l\/%L\ %p%%
-set noshowmode
+set showmode
 set showcmd
 " Show command autocomplete
 set wildignore=log/**,node_modules/**,target/**,tmp/**,*.rbc
@@ -86,18 +86,21 @@ noremap E 5j
 noremap S :w<cr>
 noremap Q :q<cr>
 
+noremap <CR> ciw
+
 " Copy to system clipboard
 vnoremap Y "+y
 " }}}
 
 " ===== Key Combinaitons ===== {{{
 inoremap <c-a> <esc>A
-inoremap <c-j> <esc>viw~ea
-nnoremap <c-j> <esc>viw~e
 nnoremap <c-l> :nohlsearch<CR><C-L>
 " }}}
 
 let g:mapleader=" "
+
+nmap <leader>pe :set paste<CR>
+nmap <leader>pd :set nopaste<CR>
 
 " ===== Window Management ===== {{{
 map <leader>u <C-w>k
@@ -118,11 +121,6 @@ noremap sv <C-w>t<C-w>H
 " Reverse screens
 noremap srh <C-w>b<C-w>K
 noremap srv <C-w>b<C-w>H
-" Resize splits with arrow keys
-map <up> :res +5<CR>
-map <down> :res -5<CR>
-map <left> :vertical resize-5<CR>
-map <right> :vertical resize+5<CR>
 " }}}
 
 " ===== Tab Management ===== {{{
@@ -150,6 +148,7 @@ augroup END
 call plug#begin()
 
 Plug 'nelstrom/vim-visual-star-search'
+Plug 'mtdl9/vim-log-highlighting'
 
 call plug#end()
 " }}}
