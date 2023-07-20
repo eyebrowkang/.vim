@@ -93,7 +93,8 @@ vnoremap Y "+y
 " }}}
 
 " ===== Key Combinaitons ===== {{{
-inoremap <c-a> <esc>A
+inoremap <c-a> <esc>I
+inoremap <c-e> <esc>A
 nnoremap <c-l> :nohlsearch<CR><C-L>
 " }}}
 
@@ -125,15 +126,15 @@ noremap srv <C-w>b<C-w>H
 
 " ===== Tab Management ===== {{{
 " Create a new tab with tu
-map tu :tabe<CR>
+nnoremap <silent> tu :tabnew<CR>
 " change curruent window to new tab
-map te <C-w>T
+nnoremap <silent> te <C-w>T
 " Move around tabs with tn and ti
-map tn :-tabnext<CR>
-map ti :+tabnext<CR>
+nnoremap <silent> tn :tabprevious<CR>
+nnoremap <silent> ti :<C-U>if v:count == 0<CR>execute 'tabnext'<CR>else<CR>execute v:count . 'tabnext'<CR>endif<CR>
 " Move the tabs with tmn and tmi
-map tmn :-tabmove<CR>
-map tmi :+tabmove<CR>
+nnoremap <silent> tmn :-tabmove<CR>
+nnoremap <silent> tmi :+tabmove<CR>
 " }}}
 
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
