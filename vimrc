@@ -46,7 +46,15 @@ set smartcase
 
 " === Statusline === {{{
 set laststatus=2
-set statusline=%f\ %m%r\ %y\ -\ %l\/%L\ %p%%
+set statusline=
+set statusline+=\>
+set statusline+=\ %{FugitiveStatusline()} " git branch
+set statusline+=\ %m " modified
+set statusline+=\ %F " file path
+set statusline+=\ %y " filetype
+set statusline+=%= " seperation
+set statusline+=\ Ln\ %l,Col\ %c,Tot\ %L(%p%%) " line number, column, total, percent
+set statusline+=\ < " end
 set showmode
 set showcmd
 " Show command autocomplete
@@ -150,6 +158,7 @@ call plug#begin()
 
 Plug 'nelstrom/vim-visual-star-search'
 Plug 'mtdl9/vim-log-highlighting'
+Plug 'tpope/vim-fugitive'
 
 call plug#end()
 " }}}
