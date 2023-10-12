@@ -91,10 +91,7 @@ noremap H Nzz
 noremap U 5k
 noremap E 5j
 
-noremap S :w<cr>
-noremap Q :q<cr>
-
-noremap <CR> ciw
+noremap <CR> o<esc>
 
 " Copy to system clipboard
 vnoremap Y "+y
@@ -116,20 +113,6 @@ map <leader>u <C-w>k
 map <leader>e <C-w>j
 map <leader>n <C-w>h
 map <leader>i <C-w>l
-" Disabling the default s key
-noremap s <nop>
-" split the screens to up (horizontal), down (horizontal), left (vertical), right (vertical)
-map su :set nosplitbelow<CR>:split<CR>:set splitbelow<CR>
-map se :set splitbelow<CR>:split<CR>
-map sn :set nosplitright<CR>:vsplit<CR>:set splitright<CR>
-map si :set splitright<CR>:vsplit<CR>
-" Place the two screens up and down
-noremap sh <C-w>t<C-w>K
-" Place the two screens side by side
-noremap sv <C-w>t<C-w>H
-" Reverse screens
-noremap srh <C-w>b<C-w>K
-noremap srv <C-w>b<C-w>H
 " }}}
 
 " ===== Tab Management ===== {{{
@@ -145,12 +128,17 @@ nnoremap <silent> tmn :-tabmove<CR>
 nnoremap <silent> tmi :+tabmove<CR>
 " }}}
 
+" open help window vertically and on the right side
+cabbrev hv vertical botright help
+
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 augroup newfile
   autocmd!
   autocmd BufNewFile,BufRead *.log setlocal nowrap
 augroup END
+
+packadd! matchit
 
 " ===== Plugins ===== {{{
 " install plugins by vim-plug
@@ -159,6 +147,9 @@ call plug#begin()
 Plug 'nelstrom/vim-visual-star-search'
 Plug 'mtdl9/vim-log-highlighting'
 Plug 'tpope/vim-fugitive'
+Plug 'justinmk/vim-sneak'
+Plug 'tomtom/tcomment_vim'
+Plug 'tpope/vim-surround'
 
 call plug#end()
 " }}}
