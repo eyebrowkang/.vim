@@ -83,7 +83,6 @@ noremap H Nzz
 noremap U 5k
 noremap E 5j
 
-noremap S :w<cr>
 noremap Q :q<cr>
 
 noremap <CR> ciw
