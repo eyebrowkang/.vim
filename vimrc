@@ -150,6 +150,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'justinmk/vim-sneak'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-surround'
+Plug 'preservim/nerdtree'
 
 call plug#end()
 " }}}
