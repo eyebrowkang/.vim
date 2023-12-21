@@ -1,12 +1,7 @@
 " ===== Basic Setting ===== {{{
-filetype on
-filetype indent on
-filetype plugin on
-filetype plugin indent on
-
-set autochdir
-
+" h 'nocompatible'
 set nocompatible
+set noautochdir
 set encoding=utf-8
 set mouse=a
 
@@ -34,6 +29,8 @@ set foldlevel=99
 set showmatch
 set matchtime=2
 
+" h :filetype-overview
+filetype plugin indent on
 syntax enable
 syntax on
 
