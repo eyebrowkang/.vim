@@ -1,156 +1,154 @@
-" ===== Basic Setting ===== {{{
-filetype on
-filetype indent on
-filetype plugin on
-filetype plugin indent on
-
-set autochdir
-
-set nocompatible
-set encoding=utf-8
-set mouse=a
-
+" Options: {{{
+" <<< Indentation >>>
+set autoindent
+set expandtab
+set smarttab
+set shiftround
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+" <<< Display >>>
+set background=dark
+set termguicolors
+set cursorcolumn
+set cursorline
+set display=lastline,uhex
 set number
 set relativenumber
-set numberwidth=4
-set ruler
-set cursorline
-set cursorcolumn
-
-set wrap
-
-set shiftwidth=2
-set shiftround
-set expandtab
-set tabstop=2
-set softtabstop=2
-set list
 set scrolloff=5
-
-set backspace=indent,eol,start
-set foldmethod=indent
-set foldlevel=99
-
+set sidescroll=1
+set sidescrolloff=5
+set smoothscroll
+set list
+set listchars=tab:▸\ ,trail:▫,nbsp:␣,precedes:«,extends:» " eol:⏎
+set showcmd
+set showmode
 set showmatch
-set matchtime=2
-
-syntax enable
-syntax on
-
-" === Search === {{{
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-" }}}
-
-" === Statusline === {{{
+set matchtime=1
+set nowrap
+set wildmenu
+set wildignore=*.o,*.obj,*.swp,*/node_modules/*
 set laststatus=2
 set statusline=
-set statusline+=\>
-set statusline+=\ %{FugitiveStatusline()} " git branch
-set statusline+=\ %m " modified
-set statusline+=\ %F " file path
-set statusline+=\ %y " filetype
+set statusline+=\>\ 
+set statusline+=[%n] " Buffer number
+set statusline+=%m " Modified flag
+set statusline+=%q " [Quickfix List], [Location List] or empty.
+set statusline+=%{FugitiveStatusline()} " git branch
+set statusline+=\ %f\  " Path to the file in the buffer
+set statusline+=%y " filetype
 set statusline+=%= " seperation
-set statusline+=\ Ln\ %l,Col\ %c,Tot\ %L(%p%%) " line number, column, total, percent
+set statusline+=Ln\ %l,Col\ %c,Tot\ %L(%p%%) " line number, column, total, percent
 set statusline+=\ < " end
-set showmode
-set showcmd
-" Show command autocomplete
-set wildignore=log/**,node_modules/**,target/**,tmp/**,*.rbc
-set wildmenu
-set wildmode=full
+" <<< Search >>>
+set hlsearch
+set ignorecase
+set incsearch
+set smartcase
+" <<< Others >>>
+set autoread
+set backspace=indent,eol,start
+set encoding=utf-8
+set foldlevel=99
+set foldmethod=marker
+set history=200
+set langnoremap
+set nolangremap
+set mouse=nvi
+set ruler
+set nostartofline
+set ttimeoutlen=100
 " }}}
-" === Style ==={{{
-set listchars=tab:▸\ ,trail:▫
-let &t_ut=''
-
-set t_Co=256
-set background=dark
-let g:solarized_termcolors=256
+" Syntax: {{{
+syntax enable
+" let g:tokyonight_style='night'
+" let g:tokyonight_transparent_background=1
 colorscheme solarized8
 " }}}
+" Filetype: {{{
+filetype plugin indent on
 " }}}
-
-" ===== Basic Mappings ===== {{{
+" Keymap: {{{
+" <<< Arrow Keys >>>
 noremap n h
 noremap u k
 noremap e j
 noremap i l
-noremap N ^
-noremap I g_
 
+noremap L H
+noremap N M
+noremap M L
 noremap h nzz
-noremap j e
-noremap k i
-noremap l u
-noremap K I
 noremap H Nzz
-" U/E keys for 5 times u/e (faster navigation)
-noremap U 5k
-noremap E 5j
-
-noremap <CR> o<esc>
+noremap U K
+noremap k i
+noremap K I
+" noremap E J
+noremap j e
+" noremap J E
+noremap I U
+noremap l u
 
 " Copy to system clipboard
 vnoremap Y "+y
-" }}}
 
-" ===== Key Combinaitons ===== {{{
-inoremap <c-a> <esc>I
-inoremap <c-e> <esc>A
-nnoremap <c-l> :nohlsearch<CR><C-L>
-" }}}
+noremap <CR> ciw
+inoremap <C-A> <Esc>I
+inoremap <C-E> <Esc>A
+nnoremap <C-L> :nohlsearch<CR><C-L>
+
+" <<< Window Management >>>
+" map <C-W>u <C-W>k
+" map <C-W>e <C-W>j
+" map <C-W>n <C-W>h
+" map <C-W>i <C-W>l
+map <C-W><C-U> <C-W>k
+map <C-W><C-E> <C-W>j
+map <C-W><C-N> <C-W>h
+map <C-W><C-I> <C-W>l
 
 let g:mapleader=" "
 
 nmap <leader>pe :set paste<CR>
 nmap <leader>pd :set nopaste<CR>
-
-" ===== Window Management ===== {{{
-map <leader>u <C-w>k
-map <leader>e <C-w>j
-map <leader>n <C-w>h
-map <leader>i <C-w>l
 " }}}
+" Miscellaneous: {{{
+" let &t_ut=''
+" <<< Abbreviations >>>
+cabbrev hb botright help
+cabbrev hr vertical botright help
+cabbrev ht tab help
 
-" ===== Tab Management ===== {{{
-" Create a new tab with tu
-nnoremap <silent> tu :tabnew<CR>
-" change curruent window to new tab
-nnoremap <silent> te <C-w>T
-" Move around tabs with tn and ti
-nnoremap <silent> tn :tabprevious<CR>
-nnoremap <silent> ti :<C-U>if v:count == 0<CR>execute 'tabnext'<CR>else<CR>execute v:count . 'tabnext'<CR>endif<CR>
-" Move the tabs with tmn and tmi
-nnoremap <silent> tmn :-tabmove<CR>
-nnoremap <silent> tmi :+tabmove<CR>
-" }}}
-
-" open help window vertically and on the right side
-cabbrev hv vertical botright help
-
-autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-
-augroup newfile
+augroup vimStartup
   autocmd!
-  autocmd BufNewFile,BufRead *.log setlocal nowrap
+
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it when the position is invalid, when inside an event handler
+  " (happens when dropping a file on gvim), for a commit or rebase message
+  " (likely a different one than last time), and when using xxd(1) to filter
+  " and edit binary files (it transforms input files back and forth, causing
+  " them to have dual nature, so to speak)
+  autocmd BufReadPost *
+    \ let line = line("'\"")
+    \ | if line >= 1 && line <= line("$") && &filetype !~# 'commit'
+    \      && index(['xxd', 'gitrebase'], &filetype) == -1
+    \ |   execute "normal! g`\""
+    \ | endif
+
 augroup END
-
+"}}}
+" Plugin: {{{
 packadd! matchit
-
-" ===== Plugins ===== {{{
-" install plugins by vim-plug
+packadd! editorconfig
+" <<< vim-plug >>>
 call plug#begin()
-
-Plug 'nelstrom/vim-visual-star-search'
-Plug 'mtdl9/vim-log-highlighting'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
 Plug 'justinmk/vim-sneak'
 Plug 'tomtom/tcomment_vim'
-Plug 'tpope/vim-surround'
 Plug 'preservim/nerdtree'
-
+" ftplugin
+Plug 'mtdl9/vim-log-highlighting'
 call plug#end()
-" }}}
+"}}}
+
