@@ -18,7 +18,6 @@ set relativenumber
 set scrolloff=5
 set sidescroll=1
 set sidescrolloff=5
-set smoothscroll
 set list
 set listchars=tab:▸\ ,trail:▫,nbsp:␣,precedes:«,extends:» " eol:⏎
 set showcmd
@@ -136,5 +135,4 @@ augroup END
 "}}}
 " Plugin: {{{
 packadd! matchit
-packadd! editorconfig
 "}}}
