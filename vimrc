@@ -63,32 +63,12 @@ set ttimeoutlen=100
 syntax enable
 " let g:tokyonight_style='night'
 " let g:tokyonight_transparent_background=1
-colorscheme solarized8
+colorscheme one
 " }}}
 " Filetype: {{{
 filetype plugin indent on
 " }}}
 " Keymap: {{{
-" <<< Arrow Keys >>>
-noremap n h
-noremap u k
-noremap e j
-noremap i l
-
-noremap L H
-noremap N M
-noremap M L
-noremap h nzz
-noremap H Nzz
-noremap U K
-noremap k i
-noremap K I
-" noremap E J
-noremap j e
-" noremap J E
-noremap I U
-noremap l u
-
 " Copy to system clipboard
 vnoremap Y "+y
 
@@ -96,16 +76,6 @@ noremap <CR> ciw
 inoremap <C-A> <Esc>I
 inoremap <C-E> <Esc>A
 nnoremap <C-L> :nohlsearch<CR><C-L>
-
-" <<< Window Management >>>
-" map <C-W>u <C-W>k
-" map <C-W>e <C-W>j
-" map <C-W>n <C-W>h
-" map <C-W>i <C-W>l
-map <C-W><C-U> <C-W>k
-map <C-W><C-E> <C-W>j
-map <C-W><C-N> <C-W>h
-map <C-W><C-I> <C-W>l
 
 let g:mapleader=" "
 
