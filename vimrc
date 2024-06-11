@@ -1,4 +1,5 @@
 " Options: {{{
+set encoding=utf-8
 " <<< Indentation >>>
 set autoindent
 set expandtab
@@ -46,7 +47,6 @@ set smartcase
 " <<< Others >>>
 set autoread
 set backspace=indent,eol,start
-set encoding=utf-8
 set foldlevel=99
 set foldmethod=marker
 set history=200
