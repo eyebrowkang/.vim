@@ -84,6 +84,7 @@ nmap <leader>pd :set nopaste<CR>
 cabbrev hb botright help
 cabbrev hr vertical botright help
 cabbrev ht tab help
+cabbrev wsu w !sudo tee %
 
 augroup vimStartup
   autocmd!
