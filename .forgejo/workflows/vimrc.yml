@@ -1,0 +1,73 @@
+name: Bundle vimrc
+
+# 每次 push 都打包并测试；只有 main 分支会把单文件上传到 S3，覆盖固定地址上的那一份。
+# 单文件头部写着来源 commit，不另外维护版本号。
+on:
+  workflow_dispatch:
+  push:
+    branches: ['**']
+    paths:
+      - 'vimrc'
+      - 'config/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - '.forgejo/workflows/vimrc.yml'
+
+env:
+  S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+  S3_BUCKET: ${{ vars.S3_BUCKET }}
+
+jobs:
+  bundle:
+    runs-on: ubuntu-24.04
+    steps:
+      # vim：跑冒烟测试；script（util-linux，镜像自带）给 Vim 提供伪终端。
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends vim shellcheck git curl unzip ca-certificates
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint
+        run: shellcheck scripts/*.sh
+
+      - name: Test repository
+        run: bash scripts/test-vimrc.sh
+
+      # BUNDLE_URL 只用来填单文件头部的用法说明，变量没配时留占位符。
+      - name: Bundle
+        env:
+          BUNDLE_URL: ${{ vars.VIMRC_URL }}
+        run: |
+          set -euxo pipefail
+          mkdir -p output
+          BUNDLE_REVISION="${GITHUB_SHA:0:12}" bash scripts/bundle-vimrc.sh > output/vimrc
+          wc -l output/vimrc
+
+      - name: Test bundle
+        run: bash scripts/test-vimrc.sh output/vimrc
+
+      - name: Install AWS CLI
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euxo pipefail
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          /tmp/aws/install
+          rm -rf /tmp/awscliv2.zip /tmp/aws
+
+      # text/plain：浏览器里打开能直接看内容，而不是下载。
+      # max-age=300：改完配置后，CDN 或代理最多 5 分钟就能拿到新版本。
+      - name: Upload to S3
+        if: github.ref == 'refs/heads/main'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
+        run: |
+          set -euxo pipefail
+          aws s3 cp output/vimrc "s3://${S3_BUCKET}/vim/vimrc" \
+            --endpoint-url "https://${S3_ENDPOINT}" \
+            --content-type 'text/plain; charset=utf-8' \
+            --cache-control 'max-age=300'

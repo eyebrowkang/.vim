@@ -15,7 +15,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| Vim | 以 Debian 13 自带的 9.1.1230 为准。8.2 和 9.0 能正常启动，部分功能不可用，见[低版本兼容](#低版本兼容) |
+| Vim | 以 Debian 13 自带的 9.1.1230 为准。8.0 到 9.0 能正常启动，部分功能不可用，见[低版本兼容](#低版本兼容) |
 | 平台 | macOS 与 Linux 通用 |
 | 配置路径 | `~/.vim`（Vim 依次找 `~/.vimrc`、`~/.vim/vimrc`，用找到的第一个，所以 `~/.vimrc` 不能存在） |
 | 状态数据 | `~/.local/state/vim/`：swap、undo、backup、viminfo、netrw 历史，遵守 `$XDG_STATE_HOME` |
@@ -29,6 +29,36 @@ git clone git@git.utlas.de:eyebrowkang/.vim.git ~/.vim
 
 不需要其他步骤。状态目录在第一次启动时自动创建。
 
+### 单文件版（陌生服务器）
+
+CI 会把整个仓库拼成一个独立的 `vimrc`，每次 push 到 `main` 都会更新 S3 上的
+`vim/vimrc`（地址见仓库变量 `VIMRC_URL`）。在服务器上二选一：
+
+```bash
+# 长期使用：放成 ~/.vimrc
+curl -fsSL <地址> -o ~/.vimrc
+
+# 临时使用：配置文件不落盘，退出就没了（bash / zsh 的进程替换）
+vim -u <(curl -fsSL <地址>) 要编辑的文件
+```
+
+单文件和仓库是同一份代码：`scripts/bundle-vimrc.sh` 只是把 `vimrc` 里的每一行
+`runtime config/xxx.vim` 原地替换成那个文件的内容。文件头写着来源 commit，
+`head -5 ~/.vimrc` 就能看到拿到的是哪一版。
+
+注意：
+
+- `~/.vimrc` 优先于 `~/.vim/vimrc`。本机这种克隆了仓库的机器上不要再放 `~/.vimrc`。
+- 两种方式都会在 `~/.local/state/vim/` 留下 swap、撤销历史和 viminfo。
+  在别人的机器上编辑过敏感文件，用完可以把这个目录删掉。
+- `sudo vim` 读的是 root 的配置；`sudoedit` 用的是你自己的，推荐用它编辑系统文件。
+
+本地构建：
+
+```bash
+scripts/bundle-vimrc.sh > output/vimrc
+```
+
 可选的外部命令，**没有也不影响启动**：
 
 | 命令 | 用途 | 缺了会怎样 |
@@ -41,21 +71,24 @@ git clone git@git.utlas.de:eyebrowkang/.vim.git ~/.vim
 
 ```
 ~/.vim
-├── vimrc                  入口：编码 → leader → 按顺序加载 config/
+├── vimrc                  入口：编码 → 关闭 vi 兼容 → leader → 按顺序加载 config/
 ├── config/
 │   ├── packages.vim       启用 Vim 自带的可选包：matchit、comment、editorconfig、hlyank
+│   ├── filetype.vim       文件类型补充规则：Ansible YAML、Jinja 模板、Terraform
 │   ├── options.vim        选项、状态栏、配色、filetype 开关
+│   ├── ftplugin.vim       按文件类型的局部设置：Ansible 的 gf 路径、K 查文档
 │   ├── keymaps.vim        全局按键
+│   ├── clipboard.vim      通过 OSC 52 写系统剪贴板，以及 <leader>y 系列按键
 │   └── autocmds.vim       自动命令：恢复光标、q 关闭辅助窗口、sops 临时文件保护
-├── filetype.vim           文件类型补充规则：Ansible YAML、Jinja 模板、Terraform
-├── ftplugin/
-│   └── ansible.vim        Ansible 文件的局部设置：gf 路径、K 查文档
-└── autoload/vimrc/
-    └── osc52.vim          通过 OSC 52 写系统剪贴板，第一次用到时才加载
+├── scripts/
+│   ├── bundle-vimrc.sh    拼成单文件版
+│   └── test-vimrc.sh      冒烟测试（仓库或单文件）
+├── tests/smoke.vim        冒烟测试的检查项
+└── .forgejo/workflows/    CI：测试、打包，main 分支上传 S3
 ```
 
-`filetype.vim`、`ftplugin/`、`autoload/` 都是 Vim 的约定目录，Vim 会在需要时自己去找，
-不需要在 `vimrc` 里引用。
+没有用 Vim 的 `filetype.vim`、`ftplugin/`、`autoload/` 这些约定目录：
+单文件版里没有目录，所有代码都由 `vimrc` 显式加载，仓库和单文件才能是同一份代码。
 
 ## 加载顺序
 
@@ -63,14 +96,23 @@ git clone git@git.utlas.de:eyebrowkang/.vim.git ~/.vim
 vimrc
   ├── set encoding=utf-8      # 必须最先：决定后面所有文件里的中文怎么读
   ├── if 1 ... endif          # 没有 +eval 的精简版 Vim 跳过下面全部内容
+  │   ├── set nocompatible    # vim -u 启动时 Vim 不会自动关掉 vi 兼容
   │   ├── let g:mapleader     # leader 必须在所有映射之前，全仓库只设这一次
-  │   └── runtime config/packages.vim → options.vim → keymaps.vim → autocmds.vim
-  └── （vimrc 执行完）Vim 加载 packadd! 登记的自带包和 plugin/
+  │   └── runtime config/packages.vim → filetype.vim → options.vim → ftplugin.vim
+  │                      → keymaps.vim → clipboard.vim → autocmds.vim
+  └── （vimrc 执行完）Vim 加载 packadd! 登记的自带包
 ```
 
-`packages.vim` 排在最前面，和 Neovim 把插件放在最后正好相反：
-`packadd!` 只是把包登记进 `'runtimepath'`，而包里的 ftdetect 规则要求登记发生在
-`filetype on` 之前，`filetype on` 写在 `options.vim` 里。详见 `vimrc` 第 4 节。
+顺序以 `options.vim` 为界，它里面的 `syntax enable` 和 `filetype plugin indent on`
+会启用文件类型识别：
+
+- `packages.vim` 必须在它之前：`packadd!` 只是把包登记进 `'runtimepath'`，
+  包里的 ftdetect 规则要求登记发生在 `filetype on` 之前。这和 Neovim 把插件放在最后正好相反。
+- `filetype.vim` 必须在它之前：自定义识别规则要比内置规则先注册才能生效。
+- `ftplugin.vim` 必须在它之后：局部设置要排在 Vim 自己的 ftplugin 后面执行，
+  否则会被当成上一个类型的残留撤销掉。
+
+详见 `vimrc` 第 5 节。
 
 ## 按键总览
 
@@ -115,7 +157,6 @@ leader 键是**空格**，和 Neovim 一致。
   粘贴用终端的粘贴键（Ctrl+Shift+V / Cmd+V）即可，Vim 能识别括号粘贴模式，
   插入模式下粘贴不会被自动缩进打乱。
 - **`Q` 保持 Vim 原义**（进入 Ex 模式）：Neovim 的 `Q` 是重放上一个录制的宏，语义不同，没有模拟。
-- 插入模式的 `<C-a>` / `<C-e>` 是这边独有的。
 
 ## 系统剪贴板
 
@@ -156,10 +197,20 @@ Debian 的 `vim` 包没有编译 `+clipboard`（`:echo has('clipboard')` 是 0�
 | diff 的 linematch | 9.1.1009 | 普通的 diff 对齐 |
 | 命令行补全弹出菜单 | 8.2.4325 | 横向的 wildmenu |
 | OSC 52 复制 | 8.2.0083 | 提示版本太低，不复制 |
+| Jinja 叠加 nginx 语法 | 9.0 | 更早的 Vim 不认识 nginx 文件，`nginx.conf.j2` 只有 Jinja 高亮 |
 
 没有 `+eval` 的精简版（Debian 的 vim-tiny、救援系统里的 vi）会跳过整份配置，退化成干净的 vi。
 
-已在 Vim 8.2.3995（Ubuntu 22.04）、9.0.1378（Debian 12）、9.1.1230（Debian 13）上验证过启动和 OSC 52 复制。
+仓库和单文件版都在这些系统上跑过冒烟测试（`scripts/test-vimrc.sh`）：
+
+| 系统 | Vim |
+| --- | --- |
+| Rocky Linux 8 | 8.0.1763 |
+| Ubuntu 20.04 | 8.1.2269 |
+| Rocky Linux 9（`/etc/vimrc` 会提前开启 filetype） | 8.2.2637 |
+| Debian 12 | 9.0.1378 |
+| Ubuntu 24.04（CI） | 9.1.0016 |
+| Debian 13 | 9.1.1230 |
 
 ## 约定
 
@@ -174,6 +225,14 @@ Debian 的 `vim` 包没有编译 `+clipboard`（`:echo has('clipboard')` 是 0�
   新版本才有的功能用 `exists()`、`has()` 或 `silent!` 兜底。
 - **文件头**写明仓库内路径、用途、依赖、按键；内容按编号分节，改编号前先查有没有别处引用。
 - **每个含中文的文件都写 `scriptencoding utf-8`**。
+- **`config/` 下的文件要能安全地拼接**：单文件版会把它们拼成一个脚本。
+  不用 `:finish`，不用 autoload 名字的函数，`s:` 变量和函数名不能和别的文件重复。
+- 改完跑一遍测试：
+
+  ```bash
+  scripts/test-vimrc.sh                                         # 仓库
+  scripts/bundle-vimrc.sh > output/vimrc && scripts/test-vimrc.sh output/vimrc   # 单文件
+  ```
 
 ## 调试常用命令
 

@@ -237,7 +237,7 @@ set path=.,,
 
 " :grep 用 ripgrep。和 Neovim 一样：系统里装了 rg 才用，没装就保持默认的 grep。
 " -uu 表示连 .gitignore 里的文件和隐藏文件也搜（:grep 的语义就是「全搜」）。
-" 结果进 quickfix，用 ]q / [q 逐条跳（config/keymaps.vim 第 5 节）。
+" 结果进 quickfix，用 ]q / [q 逐条跳（config/keymaps.vim 第 4 节）。
 if executable('rg')
   set grepprg=rg\ --vimgrep\ -uu
   set grepformat=%f:%l:%c:%m
@@ -251,7 +251,7 @@ endif
 "
 " 而且 Debian 的 vim 包没有编译 +clipboard（:echo has('clipboard') 是 0），
 " "+ 寄存器根本不存在，"+y 会静默地退化成普通的 y。
-" 复制到系统剪贴板改走 OSC 52：<leader>y 系列映射（config/keymaps.vim 第 3 节）
+" 复制到系统剪贴板改走 OSC 52：<leader>y 系列映射（config/clipboard.vim）
 " 通过终端转义序列把内容交给终端，本地、SSH、tmux 里都能用。
 " 粘贴用终端自己的粘贴键（Ctrl+Shift+V / Cmd+V），Vim 能识别括号粘贴模式，
 " 插入模式下粘贴一大段代码也不会被自动缩进打乱。
@@ -353,7 +353,7 @@ set foldlevelstart=99
 " 11. 文件类型
 " ====================================================================
 " 一条命令打开三件事（Neovim 默认全开，Vim 默认全关）：
-"   filetype on      按文件名和内容识别类型（还会读本仓库的 filetype.vim）
+"   filetype on      按文件名和内容识别类型（自定义规则在 config/filetype.vim）
 "   plugin           加载对应的 ftplugin/（注释符、局部选项）
 "   indent           加载对应的 indent/（自动缩进规则）
 filetype plugin indent on

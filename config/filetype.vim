@@ -1,37 +1,45 @@
-" filetype.vim
+" config/filetype.vim
 " 文件类型识别的补充规则：Ansible 的 YAML、Jinja 模板、Terraform。
-" 依赖：无。和 Neovim 配置的 lua/config/filetype.lua 是同一套规则。
+" 依赖：无。识别规则和 Neovim 配置的 lua/config/filetype.lua 是同一套。
+" 识别出类型之后的局部设置在 config/ftplugin.vim。
 "
 " 「文件类型」（filetype）是 Vim 给缓冲区贴的一个标签，语法高亮、缩进规则、
-" ftplugin/ 里的局部设置都挂在它上面。识别错了，后面全是错的。
-"
-" 为什么叫这个名字、放在仓库根目录：执行 filetype on 时，Vim 会按 'runtimepath'
-" 的顺序加载每个目录下的 filetype.vim，~/.vim 排在 $VIMRUNTIME 前面，
-" 所以这里的规则比内置规则**先**注册、先执行（:help new-filetype 的方法 C）。
-" 规则里用 setfiletype：它只在类型还没定下来时才生效。我们先定了，
-" 后面内置的「*.yml → yaml」再 setfiletype 就不起作用。
+" ftplugin 里的局部设置都挂在它上面。识别错了，后面全是错的。
 "
 " 自查某个文件会被识别成什么：打开它之后 :set filetype?
 scriptencoding utf-8
 
-" 内置的 filetype.vim 也会设置这个变量。已经加载过就不再重复注册。
+" ====================================================================
+" 1. 注册时机
+" ====================================================================
+" 识别规则就是 BufNewFile / BufRead 自动命令，同一个事件的自动命令按注册顺序执行。
+" 内置规则在 filetype on 时注册，下面的规则要排在它们前面，
+" 并且用 setfiletype：它只在类型还没定下来时才生效。我们先定了，
+" 后面内置的「*.yml → yaml」再 setfiletype 就不起作用。
+"
+" 所以 vimrc 在 options.vim（里面有 syntax enable 和 filetype on）之前加载本文件。
+" 但有的系统级 vimrc（比如 RHEL 系的 /etc/vimrc）在用户配置之前就已经
+" 执行过 filetype on 了。这时先关掉，等 options.vim 再打开，内置规则就会重新注册在后面。
+" 只在确实开着时才关：从没开过的话，:filetype off 会报 E216。
 if exists('did_load_filetypes')
-  finish
+  filetype off
 endif
 
-" 规则必须注册在 filetypedetect 组里：:filetype off 会清空这个组，
-" 下面第 2 节的 :doautocmd filetypedetect 也只会执行这个组里的规则。
+" 规则必须注册在 filetypedetect 组里：下面第 3 节的 :doautocmd filetypedetect
+" 只会执行这个组里的规则。
+" 代价：手动执行 :filetype off 会清空这个组，之后再 :filetype on，
+" 这里的规则就没了，重启 Vim 即可恢复。日常不会这么操作。
 augroup filetypedetect
 
 " ====================================================================
-" 1. Ansible 的 YAML
+" 2. Ansible 的 YAML
 " ====================================================================
 " Ansible 的 playbook、task、变量文件全是 .yml，光看扩展名分不出来。
 " Ansible 自己靠**目录约定**认文件，这里把那套约定翻译成文件类型。
 "
 " 目标类型是带点号的复合类型 yaml.ansible：Vim 会依次加载 yaml 和 ansible
 " 两份 ftplugin、两份语法文件。YAML 的高亮、缩进照常，
-" 本仓库的 ftplugin/ansible.vim 再加上 Ansible 特有的那部分。
+" config/ftplugin.vim 再加上 Ansible 特有的那部分。
 "
 " 自动命令的模式是文件通配符，不是正则：* 能匹配包括 / 在内的任意字符，
 " {yml,yaml} 表示两者之一。模式里有 / 时，匹配的是完整路径。
@@ -54,7 +62,7 @@ autocmd BufNewFile,BufRead */inventory/*.{yml,yaml},*/inventories/*.{yml,yaml} s
 autocmd BufNewFile,BufRead */molecule/*.{yml,yaml} setfiletype yaml.ansible
 
 " ====================================================================
-" 2. Jinja 模板（.j2 / .jinja2）
+" 3. Jinja 模板（.j2 / .jinja2）
 " ====================================================================
 " Ansible 的模板是「底层语言 + Jinja 语法」的混合体：nginx.conf.j2 里
 " 既有 nginx 的配置语法，又有 {{ 变量 }} 和 {% for %}。
@@ -96,7 +104,7 @@ endfunction
 autocmd BufNewFile,BufRead *.j2,*.jinja2 call s:JinjaOverBase(expand('<afile>'))
 
 " ====================================================================
-" 3. Terraform（.tf）
+" 4. Terraform（.tf）
 " ====================================================================
 " 内置规则里 .tf 有歧义：它同时是 TinyFugue（一个 MUD 客户端）的脚本后缀。
 " 内置的判断办法是读文件内容，空文件或只写了注释的 main.tf 会被判成 tf。

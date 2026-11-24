@@ -9,16 +9,14 @@
 " packadd! 带感叹号：只把包加进 'runtimepath'，等 vimrc 执行完、
 " Vim 进入正常的插件加载阶段时，再和其他插件一起加载（:help load-plugins）。
 " 好处是 vim --noplugin 能把它们和其他插件一起跳过，排查问题时有用。
-" 这也是本文件要在 filetype on 之前加载的原因，见 vimrc 第 4 节。
+" 这也是本文件要在 filetype on 之前加载的原因，见 vimrc 第 5 节。
 "
-" 每个包都是 Vim 某个版本之后才有的，版本更老时 packadd 会报 E919。
-" silent! 让它静默失败：少了这个功能，其他一切照常。
+" 每个包都是 Vim 某个版本之后才有的，版本更老时 packadd 会报 E919；
+" 8.0 之前连 packadd 命令都没有，报的是 E492。
+" silent! 让这两种情况都静默失败：少了这个功能，其他一切照常。
+" 不用 if !has('packages') | finish | endif 提前返回：单文件版里本文件被拼进
+" 一个大文件，finish 会把后面的全部配置一起跳过。
 scriptencoding utf-8
-
-" 'packages' 是 Vim 8.0 引入的包机制，更老的版本连 packadd 命令都没有。
-if !has('packages')
-  finish
-endif
 
 " ====================================================================
 " 1. matchit：% 在配对的关键字之间跳转
@@ -65,7 +63,7 @@ silent! packadd! hlyank
 " 没有启用的自带包
 " ====================================================================
 "   nohlsearch  停止移动光标一段时间后自动取消搜索高亮。和 Neovim 的习惯不同，
-"               那边是按 <C-l> 手动取消，这里也一样（config/keymaps.vim 第 5 节）
+"               那边是按 <C-l> 手动取消，这里也一样（config/keymaps.vim 第 4 节）
 "   cfilter     :Cfilter 过滤 quickfix 列表。需要时 :packadd cfilter 临时加载
 "   netrw       不在这里：它是默认加载的 start 包，不需要 packadd
 "   termdebug   在 Vim 里调试 gdb 程序，属于 IDE 功能，交给 Neovim
