@@ -31,16 +31,20 @@ git clone git@git.utlas.de:eyebrowkang/.vim.git ~/.vim
 
 ### 单文件版（陌生服务器）
 
-CI 会把整个仓库拼成一个独立的 `vimrc`，每次 push 到 `main` 都会更新 S3 上的
-`vim/vimrc`（地址见仓库变量 `VIMRC_URL`）。在服务器上二选一：
+CI 会把整个仓库拼成一个独立的 `vimrc`，每次 push 到 `main` 都会更新 S3 public 桶里的
+`vim/vimrc`，公开地址是 <https://public.static.utlas.de/vim/vimrc>
+（`https://static.utlas.de/public/vim/vimrc` 指向同一个文件）。在服务器上二选一：
 
 ```bash
 # 长期使用：放成 ~/.vimrc
-curl -fsSL <地址> -o ~/.vimrc
+curl -fsSL https://public.static.utlas.de/vim/vimrc -o ~/.vimrc
 
 # 临时使用：配置文件不落盘，退出就没了（bash / zsh 的进程替换）
-vim -u <(curl -fsSL <地址>) 要编辑的文件
+vim -u <(curl -fsSL https://public.static.utlas.de/vim/vimrc) 要编辑的文件
 ```
+
+更新到最新版就是重新执行一遍 curl。上传时设了 5 分钟缓存，刚 push 完可能还拿到旧版，
+看文件头的来源 commit 就能分辨。
 
 单文件和仓库是同一份代码：`scripts/bundle-vimrc.sh` 只是把 `vimrc` 里的每一行
 `runtime config/xxx.vim` 原地替换成那个文件的内容。文件头写着来源 commit，
