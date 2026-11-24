@@ -1,0 +1,9 @@
+# 状态文件（swap、undo、viminfo、netrw 历史）都在 ~/.local/state/vim/，
+# 不会出现在仓库里，所以这里不需要忽略它们。
+
+# zg 添加的单词表和 Vim 自动下载的拼写字典，默认写进 ~/.vim/spell/。
+# 它们是本机数据，不进仓库。
+spell/
+
+# macOS Finder 生成的目录元数据
+.DS_Store
